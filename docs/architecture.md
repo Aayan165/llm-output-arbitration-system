@@ -12,36 +12,31 @@ The system follows a layered architecture to separate concerns and improve maint
 
 # High-Level Architecture
 
-                    User
-                      │
-                      ▼
-               FastAPI Endpoint
-                      │
-                      ▼
-         Create ArbitrationState
-                      │
-                      ▼
-              LangGraph Workflow
-                      │
-        ┌─────────────┼─────────────┐
-        │             │             │
-        ▼             ▼             ▼
- Accuracy Critic  Logic Critic  Completeness Critic
-        │             │             │
-        └─────────────┼─────────────┘
-                      ▼
-              Adjudicator Agent
-                      │
-                      ▼
-          Updated ArbitrationState
-                      │
-                      ▼
-          FastAPI receives result
-              │               │
-              ▼               ▼
-      Save to Database   Return Response
+```mermaid
+flowchart TD
 
----
+A[User]
+--> B[FastAPI Endpoint]
+
+B --> C[Create ArbitrationState]
+
+C --> D[LangGraph Workflow]
+
+D --> E[Accuracy Critic]
+D --> F[Logic Critic]
+D --> G[Completeness Critic]
+
+E --> H[Adjudicator]
+F --> H
+G --> H
+
+H --> I[Updated ArbitrationState]
+
+I --> J[FastAPI Receives Result]
+
+J --> K[Save to Database]
+J --> L[Return Response]
+```
 
 # System Layers
 
