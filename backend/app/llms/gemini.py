@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 from google import genai
 
@@ -15,10 +16,14 @@ class GeminiProvider:
             "gemini-3.5-flash"
         )
 
-    def generate(self, prompt: str) -> str:
+    def generate_text(self, prompt: str) -> str:
         response = self.Client.models.generate_content(
             model = self.model,
             contents = prompt
         )
 
-        return response.text
+        return response.text.strip()
+    
+    def generate_json(self, prompt: str) -> dict:
+        text = self.generate_text(prompt)
+        return json.loads(text)
