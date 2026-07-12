@@ -2,7 +2,7 @@ from app.agents.base_critic import BaseCriticAgent
 from app.prompts.accuracy import SYSTEM_PROMPT
 from app.schemas.critic import CriticResult
 
-class AccuracyAgent(BaseCriticAgent):
+class CompletenessAgent(BaseCriticAgent):
     def evaluate(
         self,
         prompt: str,
