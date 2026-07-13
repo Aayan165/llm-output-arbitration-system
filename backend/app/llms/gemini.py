@@ -1,22 +1,15 @@
-import os
 import json
-from dotenv import load_dotenv
 from google import genai
 
-load_dotenv()
-
 class GeminiProvider:
-    def __init__(self):
+    def __init__(self, api_key: str, model: str):
         self.Client = genai.Client(
-            api_key = os.getenv("GENAI_API_KEY")
+            api_key = api_key
         )
 
-        self.model = os.getenv(
-            "GEMINI_MODEL",
-            "gemini-3.5-flash"
-        )
+        self.model = model
 
-    def generate_text(self, prompt: str) -> str:
+    def generate_text(self, prompt: str):
         response = self.Client.models.generate_content(
             model = self.model,
             contents = prompt
@@ -24,6 +17,6 @@ class GeminiProvider:
 
         return response.text.strip()
     
-    def generate_json(self, prompt: str) -> dict:
+    def generate_json(self, prompt: str):
         text = self.generate_text(prompt)
         return json.loads(text)

@@ -5,8 +5,8 @@ from app.llms.gemini import GeminiProvider
 from app.schemas.critic import CriticResult
 
 class BaseCriticAgent(ABC):
-    def __init__(self):
-        self.llm = GeminiProvider()
+    def __init__(self, llm):
+        self.llm = llm
 
     def evaluate(
             self,
