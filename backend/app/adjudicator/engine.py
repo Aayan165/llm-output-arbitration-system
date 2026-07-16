@@ -15,7 +15,7 @@ class Adjudicator:
 
 
         for result in critic_results.values():
-            strengths.append(result.strengths)
+            strengths.extend(result.strengths)
             weaknesses.extend(result.issues)
             improvements.extend(result.suggestions)
 

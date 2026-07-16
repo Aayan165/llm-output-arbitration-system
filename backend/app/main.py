@@ -1,10 +1,9 @@
 from fastapi import FastAPI
+from app.api.routes import router
 
 app = FastAPI(
-    title = "LLM Output Arbitration System",
+    title = "LLM Output Arbitrator",
     version = "1.0.0",
 )
 
-app.get("/")
-def root():
-    return {"message": "LLM Output Arbitration System API"}
+app.include_router(router)
