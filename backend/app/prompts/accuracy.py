@@ -22,6 +22,7 @@ Schema:
 {
     "score": float,
     "reasoning": "...",
+    "strengths": ["..."],
     "issues": ["..."],
     "suggestions": ["..."]
 }

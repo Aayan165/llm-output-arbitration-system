@@ -4,12 +4,9 @@ graph = build_graph()
 
 result = graph.invoke(
     {
-
         "prompt": "Name three planets.",
-
         "response": "Earth and Mars."
-
     }
 )
 
-print(result)
+print(result["final_verdict"])
