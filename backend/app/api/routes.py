@@ -3,11 +3,12 @@ from fastapi import HTTPException
 
 from app.schemas.request import EvaluationRequest
 from app.schemas.response import EvaluationResponse
+from app.services.evaluation_service import EvaluationService
 
 from app.graph.workflow import build_graph
 
 router = APIRouter()
-graph = build_graph()
+service = EvaluationService()
 
 @router.post(
     "/evaluate",
@@ -15,15 +16,13 @@ graph = build_graph()
 )
 def evaluate(data: EvaluationRequest):
     try:
-        result = graph.invoke(
-            {
-                "prompt": data.prompt,
-                "response": data.response
-            }
+        result = service.evaluate(
+            prompt=data.prompt,
+            response=data.response
         )
 
         return EvaluationResponse(
-            result = result["final_verdict"]
+            result = result
         )
     
     except Exception as e:
