@@ -4,6 +4,9 @@ from fastapi import HTTPException
 from app.schemas.request import EvaluationRequest
 from app.schemas.response import EvaluationResponse
 from app.services.evaluation_service import EvaluationService
+from app.database.session import SessionLocal
+from app.models.evaluation import Evaluation
+from app.schemas.evaluation import EvaluationRecord
 
 from app.graph.workflow import build_graph
 
@@ -40,3 +43,29 @@ def health():
     return {
         "status": "healthy"
     }
+
+@router.get(
+    "/evaluations",
+    response_model=list[EvaluationRecord]
+)
+def get_evaluations():
+    db = SessionLocal()
+    evaluations = db.query(Evaluation).all()
+    db.close()
+
+    return evaluations
+
+@router.get(
+    "/evaluations/{evaluation_id}",
+    response_model=EvaluationRecord
+)
+def get_evaluation(evaluation_id: int):
+    db = SessionLocal()
+    evaluation = (
+        db.query(Evaluation)
+        .filter(Evaluation.id == evaluation_id)
+        .first()
+    )
+    db.close()
+
+    return evaluation
