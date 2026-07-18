@@ -1,6 +1,9 @@
 from app.graph.workflow import build_graph
 from app.database.session import SessionLocal
 from app.models.evaluation import Evaluation
+from app.utils.logger import logger
+from app.utils.timer import Timer
+from app.exceptions import DatabaseError, EvaluationError
 
 class EvaluationService:
     def __init__(self):
@@ -11,12 +14,23 @@ class EvaluationService:
         prompt: str,
         response: str
     ):
-        result =  self.graph.invoke(
-            {
-                "prompt": prompt,
-                "response": response
-            }
-        )
+        timer = Timer()
+        timer.start()
+        logger.info("Evaluation started")
+
+        try:
+            result =  self.graph.invoke(
+                {
+                    "prompt": prompt,
+                    "response": response
+                }
+            )
+        except Exception as e:
+            logger.exception("Evaluation pipeline failed")
+
+            raise EvaluationError(f"Evaluation pipeline error: {e}")
+
+        logger.info("LangGraph execution completed")
 
         verdict = result["final_verdict"]
 
@@ -33,9 +47,24 @@ class EvaluationService:
             summary=verdict.summary
         )
 
-        db.add(evaluation)
-        db.commit()
-        db.refresh(evaluation)
-        db.close()
+        try:
+            db.add(evaluation)
+            db.commit()
+            db.refresh(evaluation)
+        except Exception as e:
+            db.rollback()
+            logger.exception("Database operation failed")
+
+            raise DatabaseError(f"Database error: {e}")
+        finally:
+            logger.info("Evaluation saved to database")
+            db.close()
+
+        elapsed = timer.stop()
+
+        logger.info(
+            "Evaluation completed in %.3f seconds",
+            elapsed
+        )
 
         return verdict

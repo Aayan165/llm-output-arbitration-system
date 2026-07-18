@@ -7,6 +7,11 @@ from app.services.evaluation_service import EvaluationService
 from app.database.session import SessionLocal
 from app.models.evaluation import Evaluation
 from app.schemas.evaluation import EvaluationRecord
+from app.exceptions.custom import (
+    DatabaseError,
+    EvaluationError,
+    LLMGenerationError
+)
 
 from app.graph.workflow import build_graph
 
@@ -28,8 +33,18 @@ def evaluate(data: EvaluationRequest):
             result = result
         )
     
-    except Exception as e:
+    except LLMGenerationError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    
+    except EvaluationError as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+    except DatabaseError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Unexpected Server error.")
 
 
 @router.get("/")
