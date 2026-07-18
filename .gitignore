@@ -1,15 +1,29 @@
 # Environment variables
-backend/.env
 .env
+backend/.env
 
 # Virtual environments
-backend/venv/
 venv/
+backend/venv/
 
 # Python cache
-backend/__pycache__/
+__pycache__/
+**/__pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 
 # IDE
 .vscode/
 .idea/
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
