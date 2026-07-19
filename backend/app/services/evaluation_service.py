@@ -1,5 +1,7 @@
+from sqlalchemy.orm import Session
+
 from app.graph.workflow import build_graph
-from app.database.session import SessionLocal
+from app.repositories.evaluation_repository import EvaluationRepository
 from app.models.evaluation import Evaluation
 from app.utils.logger import logger
 from app.utils.timer import Timer
@@ -8,9 +10,11 @@ from app.exceptions import DatabaseError, EvaluationError
 class EvaluationService:
     def __init__(self):
         self.graph = build_graph()
+        self.repository = EvaluationRepository()
 
     def evaluate(
         self,
+        db: Session,
         prompt: str,
         response: str
     ):
@@ -34,7 +38,7 @@ class EvaluationService:
 
         verdict = result["final_verdict"]
 
-        db = SessionLocal()
+        # db = SessionLocal()
 
         evaluation = Evaluation(
             prompt=prompt,
@@ -47,18 +51,20 @@ class EvaluationService:
             summary=verdict.summary
         )
 
-        try:
-            db.add(evaluation)
-            db.commit()
-            db.refresh(evaluation)
-        except Exception as e:
-            db.rollback()
-            logger.exception("Database operation failed")
+        self.repository.save(db, evaluation)
 
-            raise DatabaseError(f"Database error: {e}")
-        finally:
-            logger.info("Evaluation saved to database")
-            db.close()
+        # try:
+        #     db.add(evaluation)
+        #     db.commit()
+        #     db.refresh(evaluation)
+        # except Exception as e:
+        #     db.rollback()
+        #     logger.exception("Database operation failed")
+
+        #     raise DatabaseError(f"Database error: {e}")
+        # finally:
+        #     logger.info("Evaluation saved to database")
+        #     db.close()
 
         elapsed = timer.stop()
 

@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
+from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from app.schemas.request import EvaluationRequest
 from app.schemas.response import EvaluationResponse
@@ -12,6 +14,7 @@ from app.exceptions.custom import (
     EvaluationError,
     LLMGenerationError
 )
+from app.database.dependencies import get_db
 
 from app.graph.workflow import build_graph
 
@@ -22,9 +25,13 @@ service = EvaluationService()
     "/evaluate",
     response_model=EvaluationResponse
 )
-def evaluate(data: EvaluationRequest):
+def evaluate(
+    data: EvaluationRequest,
+    db: Session = Depends(get_db)
+):
     try:
         result = service.evaluate(
+            db=db,
             prompt=data.prompt,
             response=data.response
         )
@@ -63,24 +70,17 @@ def health():
     "/evaluations",
     response_model=list[EvaluationRecord]
 )
-def get_evaluations():
-    db = SessionLocal()
-    evaluations = db.query(Evaluation).all()
-    db.close()
-
-    return evaluations
+def get_evaluations(
+    db: Session = Depends(get_db)
+):
+    return service.repository.get_all(db)
 
 @router.get(
     "/evaluations/{evaluation_id}",
     response_model=EvaluationRecord
 )
-def get_evaluation(evaluation_id: int):
-    db = SessionLocal()
-    evaluation = (
-        db.query(Evaluation)
-        .filter(Evaluation.id == evaluation_id)
-        .first()
-    )
-    db.close()
-
-    return evaluation
+def get_evaluation(
+    evaluation_id: int,
+    db: Session = Depends(get_db)    
+):
+    return service.repository.get_by_id(db, evaluation_id)
