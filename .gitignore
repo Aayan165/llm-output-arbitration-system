@@ -13,6 +13,11 @@ __pycache__/
 *.pyo
 *.pyd
 
+#Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
 # IDE
 .vscode/
 .idea/
