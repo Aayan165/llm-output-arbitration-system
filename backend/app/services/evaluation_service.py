@@ -5,7 +5,7 @@ from app.repositories.evaluation_repository import EvaluationRepository
 from app.models.evaluation import Evaluation
 from app.utils.logger import logger
 from app.utils.timer import Timer
-from app.exceptions import DatabaseError, EvaluationError
+from app.exceptions.custom import DatabaseError, EvaluationError
 
 class EvaluationService:
     def __init__(self):
