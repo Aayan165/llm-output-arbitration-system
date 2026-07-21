@@ -102,20 +102,36 @@ def health():
     }
 
 @router.get(
-    "/evaluations",
+    "/my-evaluations",
     response_model=list[EvaluationRecord]
 )
-def get_evaluations(
-    db: Session = Depends(get_db)
+def get_my_evaluations(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
-    return service.repository.get_all(db)
+    return service.get_user_evaluations(
+        db=db,
+        user_id=current_user.id
+    )
+
 
 @router.get(
-    "/evaluations/{evaluation_id}",
+    "/my-evaluations/{evaluation_id}",
     response_model=EvaluationRecord
 )
 def get_evaluation(
     evaluation_id: int,
-    db: Session = Depends(get_db)    
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)    
 ):
-    return service.repository.get_by_id(db, evaluation_id)
+    evaluation = service.get_evaluation(
+        db=db,
+        evaluation_id=evaluation_id,
+        user_id=current_user.id
+    )
+    if evaluation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Evaluation not Found."
+        )
+    return evaluation

@@ -30,3 +30,27 @@ class EvaluationRepository:
             .filter(Evaluation.id == evaluation_id)
             .first()
         )
+    
+    def get_user_evaluations(
+        self,
+        db: Session,
+        user_id: str
+    ):
+        return (
+            db.query(Evaluation)
+            .filter(Evaluation.user_id == user_id)
+            .order_by(Evaluation.created_at.desc())
+            .all()
+        )
+    
+    def get_evaluation(
+        self,
+        db: Session,
+        evaluation_id: int,
+        user_id: str
+    ):
+        return (
+            db.query(Evaluation)
+            .filter(Evaluation.id == evaluation_id, Evaluation.user_id == user_id)
+            .first()
+        )
