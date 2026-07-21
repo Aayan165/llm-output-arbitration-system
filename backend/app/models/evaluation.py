@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, Text, DateTime
 from datetime import datetime
 
-from app.database.database import Base
+from app.database.session import Base
 
 class Evaluation(Base):
     __tablename__ = "evaluations"
