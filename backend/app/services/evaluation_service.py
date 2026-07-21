@@ -16,7 +16,8 @@ class EvaluationService:
         self,
         db: Session,
         prompt: str,
-        response: str
+        response: str,
+        user_id: str
     ):
         timer = Timer()
         timer.start()
@@ -41,6 +42,7 @@ class EvaluationService:
         # db = SessionLocal()
 
         evaluation = Evaluation(
+            user_id=user_id,
             prompt=prompt,
             response=response,
             accuracy_score=result["accuracy_result"].score,

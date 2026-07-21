@@ -7,6 +7,7 @@ class Evaluation(Base):
     __tablename__ = "evaluations"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, nullable=False)
     prompt = Column(Text, nullable=False)
     response = Column(Text, nullable=False)
     accuracy_score = Column(Float)
