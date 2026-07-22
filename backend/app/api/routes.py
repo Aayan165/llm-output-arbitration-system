@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.schemas.request import EvaluationRequest
 from app.schemas.response import EvaluationResponse
 from app.schemas.evaluation import EvaluationRecord
+from app.schemas.analytics import AnalyticsResponse
 
 #Database
 from app.database.session import SessionLocal
@@ -135,3 +136,16 @@ def get_evaluation(
             detail="Evaluation not Found."
         )
     return evaluation
+
+@router.get(
+    "/analytics",
+    response_model=AnalyticsResponse
+)
+def get_analytics(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return service.get_user_analytics(
+        db=db,
+        user_id=current_user.id
+    )

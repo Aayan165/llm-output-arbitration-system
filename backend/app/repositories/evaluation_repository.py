@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.models.evaluation import Evaluation
 
@@ -54,3 +55,41 @@ class EvaluationRepository:
             .filter(Evaluation.id == evaluation_id, Evaluation.user_id == user_id)
             .first()
         )
+
+    def get_user_analytics(
+        self,
+        db: Session,
+        user_id: str
+    ):
+        total = (
+            db.query(Evaluation)
+            .filter(Evaluation.user_id == user_id)
+            .count()
+        )
+
+        averages = (
+            db.query(
+                func.avg(Evaluation.overall_score),
+                func.avg(Evaluation.accuracy_score),
+                func.avg(Evaluation.logic_score),
+                func.avg(Evaluation.completeness_score)
+            )
+            .filter(Evaluation.user_id == user_id)
+            .first()
+        )
+
+        verdicts = (
+            db.query(
+                Evaluation.verdict,
+                func.count(Evaluation.id)
+            )
+            .filter(Evaluation.user_id == user_id)
+            .group_by(Evaluation.verdict)
+            .all()
+        )
+
+        return {
+            "total": total,
+            "averages": averages,
+            "verdicts": verdicts
+        }

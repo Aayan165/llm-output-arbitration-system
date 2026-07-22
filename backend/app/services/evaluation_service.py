@@ -95,3 +95,26 @@ class EvaluationService:
             evaluation_id=evaluation_id,
             user_id=user_id
         )
+
+    def get_user_analytics(
+        self,
+        db: Session,
+        user_id: str
+    ):
+        analytics = self.repository.get_user_analytics(
+            db=db,
+            user_id=user_id
+        )
+        overall, accuracy, logic, completeness = analytics["averages"]
+
+        return {
+            "total_evaluations": analytics["total"],
+            "average_overall_score": round(overall or 0, 2),
+            "average_accuracy_score": round(accuracy or 0, 2),
+            "average_logic_score": round(logic or 0, 2),
+            "average_completeness_score": round(completeness or 0, 2),
+            "verdict_distribution": {
+                verdict: count
+                for verdict, count in analytics["verdicts"]
+            }
+        }
