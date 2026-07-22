@@ -26,6 +26,7 @@ class EvaluationService:
         db: Session,
         prompt: str,
         response: str,
+        model_name: str,
         user_id: str
     ):
         timer = Timer()
@@ -54,6 +55,7 @@ class EvaluationService:
             user_id=user_id,
             prompt=prompt,
             response=response,
+            model_name=model_name,
             accuracy_score=result["accuracy_result"].score,
             logic_score=result["logic_result"].score,
             completeness_score=result["completeness_result"].score,
@@ -118,3 +120,26 @@ class EvaluationService:
                 for verdict, count in analytics["verdicts"]
             }
         }
+
+    def get_model_comparison(
+        self,
+        db: Session,
+        user_id: str
+    ):
+        evaluations = self.repository.get_model_comparison(
+            db=db,
+            user_id=user_id
+        )
+
+        return [
+            {
+                "model_name": e.model_name,
+                "overall_score": e.overall_score,
+                "accuracy_score": e.accuracy_score,
+                "logic_score": e.logic_score,
+                "completeness_score": e.completeness_score,
+                "verdict": e.verdict,
+                "created_at": e.created_at
+            }
+            for e in evaluations
+        ]

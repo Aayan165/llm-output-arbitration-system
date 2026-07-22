@@ -10,6 +10,7 @@ class Evaluation(Base):
     user_id = Column(String, nullable=False)
     prompt = Column(Text, nullable=False)
     response = Column(Text, nullable=False)
+    model_name = Column(String, nullable=False)
     accuracy_score = Column(Float)
     logic_score = Column(Float)
     completeness_score = Column(Float)

@@ -8,6 +8,7 @@ from app.schemas.request import EvaluationRequest
 from app.schemas.response import EvaluationResponse
 from app.schemas.evaluation import EvaluationRecord
 from app.schemas.analytics import AnalyticsResponse
+from app.schemas.model_comparision import ModelComparison
 
 #Database
 from app.database.session import SessionLocal
@@ -69,6 +70,7 @@ def evaluate(
             db=db,
             prompt=data.prompt,
             response=data.response,
+            model_name=data.model_name,
             user_id=current_user.id
         )
 
@@ -146,6 +148,20 @@ def get_analytics(
     current_user = Depends(get_current_user)
 ):
     return service.get_user_analytics(
+        db=db,
+        user_id=current_user.id
+    )
+
+
+@router.get(
+    "/model-comparison",
+    response_model=list[ModelComparison]
+)
+def get_model_comparison(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return service.get_model_comparison(
         db=db,
         user_id=current_user.id
     )
