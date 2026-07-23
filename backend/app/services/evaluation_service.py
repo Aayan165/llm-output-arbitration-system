@@ -5,6 +5,7 @@ from app.graph.workflow import build_graph
 
 #Repository
 from app.repositories.evaluation_repository import EvaluationRepository
+from app.repositories.experiment_repository import ExperimentRepository
 
 #Evaluation
 from app.models.evaluation import Evaluation
@@ -20,6 +21,7 @@ class EvaluationService:
     def __init__(self):
         self.graph = build_graph()
         self.repository = EvaluationRepository()
+        self.experiment_repository = ExperimentRepository()
 
     def evaluate(
         self,
@@ -27,7 +29,8 @@ class EvaluationService:
         prompt: str,
         response: str,
         model_name: str,
-        user_id: str
+        user_id: str,
+        experiment_id: int | None = None
     ):
         timer = Timer()
         timer.start()
@@ -49,10 +52,20 @@ class EvaluationService:
 
         verdict = result["final_verdict"]
 
-        # db = SessionLocal()
+        if experiment_id is not None:
+            experiment = self.experiment_repository.get_by_id(
+                db,
+                experiment_id,
+                user_id
+            )
+            if experiment is None:
+                raise EvaluationError(
+                    "Experiment not found."
+                )
 
         evaluation = Evaluation(
             user_id=user_id,
+            experiment_id=experiment_id,
             prompt=prompt,
             response=response,
             model_name=model_name,

@@ -117,3 +117,19 @@ class EvaluationRepository:
             .order_by(Evaluation.created_at.desc())
             .all()
         )
+
+    def get_by_experiment(
+        self,
+        db: Session,
+        experiment_id: int,
+        user_id: str
+    ):
+        return (
+            db.query(Evaluation)
+            .filter(
+                Evaluation.user_id == user_id,
+                Evaluation.experiment_id == experiment_id
+            )
+            .order_by(Evaluation.created_at.desc())
+            .all()
+        )

@@ -48,6 +48,8 @@ experiment_service = ExperimentService()
 auth_service = AuthService()
 
 #===============================================================================
+#           Posts
+#===============================================================================
 
 @router.post(
     "/login",
@@ -83,7 +85,8 @@ def evaluate(
             prompt=data.prompt,
             response=data.response,
             model_name=data.model_name,
-            user_id=current_user.id
+            user_id=current_user.id,
+            experiment_id=data.experiment_id
         )
 
         return EvaluationResponse(
@@ -120,6 +123,8 @@ def create_experiment(
         description=data.description
     )
 
+#===============================================================================
+#           Gets
 #===============================================================================
 
 @router.get("/")
@@ -232,6 +237,34 @@ def get_experiment(
 
     return experiment
 
+@router.get(
+    "/experiments/{experiment_id}/evaluations",
+    response_model=list[EvaluationRecord]
+)
+def get_experiment_evaluations(
+    experiment_id: int,
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    experiment = experiment_service.get_experiment(
+        db=db,
+        experiment_id=experiment_id,
+        user_id=current_user.id
+    )
+    if experiment is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Experiment not Found."
+        )
+
+    return service.repository.get_by_experiment(
+        db,
+        experiment_id,
+        current_user.id
+    )
+
+#===============================================================================
+#           Deletes
 #===============================================================================
 
 @router.delete(

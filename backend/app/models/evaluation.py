@@ -8,6 +8,14 @@ class Evaluation(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, nullable=False)
+    experiment_id = Column(
+        Integer,
+        ForeignKey(
+            "experiments.id",
+            ondelete="SET NULL"
+        ),
+        nullable=True
+    )
     prompt = Column(Text, nullable=False)
     response = Column(Text, nullable=False)
     model_name = Column(String, nullable=False)

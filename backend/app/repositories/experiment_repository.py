@@ -49,3 +49,19 @@ class ExperimentRepository:
     ):
         db.delete(experiment)
         db.commit()
+
+    def has_access(
+        self,
+        db: Session,
+        experiment_id: int,
+        user_id: str
+    ):
+        return (
+            db.query(Experiment)
+            .filter(
+                Experiment.id == experiment_id,
+                Experiment.user_id == user_id
+            )
+            .first()
+            is not None
+        )
