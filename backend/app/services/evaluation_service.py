@@ -143,3 +143,13 @@ class EvaluationService:
             }
             for e in evaluations
         ]
+
+    def get_prompt_experiments(
+        self,
+        db: Session,
+        user_id: str
+    ):
+        return self.repository.get_prompt_experiments(
+            db,
+            user_id
+        )

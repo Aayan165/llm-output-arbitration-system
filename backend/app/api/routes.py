@@ -9,13 +9,16 @@ from app.schemas.response import EvaluationResponse
 from app.schemas.evaluation import EvaluationRecord
 from app.schemas.analytics import AnalyticsResponse
 from app.schemas.model_comparision import ModelComparison
+from app.schemas.experiment import (
+    ExperimentCreate,
+    ExperimentResponse
+)
 
 #Database
 from app.database.session import SessionLocal
 from app.database.dependencies import get_db
 
-#Evaluation
-from app.services.evaluation_service import EvaluationService
+#Models
 from app.models.evaluation import Evaluation
 
 #Exceptions
@@ -25,6 +28,10 @@ from app.exceptions.custom import (
     LLMGenerationError
 )
 
+#Serivices
+from app.services.evaluation_service import EvaluationService
+from app.services.experiment_service import ExperimentService
+
 #Workflow (langgraph)
 from app.graph.workflow import build_graph
 
@@ -33,9 +40,14 @@ from app.auth.service import AuthService
 from app.schemas.auth import LoginRequest, AuthResponse
 from app.auth.dependencies import get_current_user
 
+#===============================================================================
+
 router = APIRouter()
 service = EvaluationService()
+experiment_service = ExperimentService()
 auth_service = AuthService()
+
+#===============================================================================
 
 @router.post(
     "/login",
@@ -91,6 +103,24 @@ def evaluate(
     except Exception as e:
         raise HTTPException(status_code=500, detail="Unexpected Server error.")
 
+
+@router.post(
+    "/experiments",
+    response_model=ExperimentResponse
+)
+def create_experiment(
+    data: ExperimentCreate,
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return experiment_service.create_experiment(
+        db=db,
+        user_id=current_user.id,
+        name=data.name,
+        description=data.description
+    )
+
+#===============================================================================
 
 @router.get("/")
 def home():
@@ -165,3 +195,65 @@ def get_model_comparison(
         db=db,
         user_id=current_user.id
     )
+
+@router.get(
+    "/experiments",
+    response_model=list[ExperimentResponse]
+)
+def get_experiments(
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return experiment_service.get_user_experiments(
+        db,
+        current_user.id
+    )
+
+@router.get(
+    "/experiments/{experiment_id}",
+    response_model=ExperimentResponse
+)
+def get_experiment(
+    experiment_id: int,
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    experiment = experiment_service.get_experiment(
+        db=db,
+        experiment_id=experiment_id,
+        user_id=current_user.id
+    )
+
+    if experiment is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Experiment not Found."
+        )
+
+    return experiment
+
+#===============================================================================
+
+@router.delete(
+    "/experiments/{experiment_id}"
+)
+def delete_experiment(
+    experiment_id: int,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    experiment = experiment_service.delete_experiment(
+        db=db,
+        experiment_id=experiment_id,
+        user_id=current_user.id
+    )
+
+    if experiment is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Experiment not found."
+        )
+
+    return {
+        "message": "Experiment deleted successfully."
+    }
