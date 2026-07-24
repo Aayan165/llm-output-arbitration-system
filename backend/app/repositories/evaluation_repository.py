@@ -17,9 +17,35 @@ class EvaluationRepository:
     
     def get_all(
         self,
-        db: Session
+        db: Session,
+        user_id: str,
+        verdict: str | None = None,
+        experiment_id: int | None = None,
+        page: int = 1,
+        limit: int = 10
     ):
-        return db.query(Evaluation).all()
+        query = (
+            db.query(Evaluation)
+            .filter(Evaluation.user_id == user_id)
+        )
+
+        if verdict:
+            query = query.filter(
+                Evaluation.verdict == verdict
+            )
+
+        if experiment_id:
+            query = query.filter(
+                Evaluation.experiment_id == experiment_id
+            )
+
+        return (
+            query.
+            order_by(Evaluation.created_at.desc())
+            .offset((page - 1) * limit)
+            .limit(limit)
+            .all()
+        )
 
     def get_by_id(
             self,

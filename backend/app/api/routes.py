@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Depends
+from fastapi import Query
 from sqlalchemy.orm import Session
 
 #Schemas
@@ -261,6 +262,27 @@ def get_experiment_evaluations(
         db,
         experiment_id,
         current_user.id
+    )
+
+@router.get(
+    "/evaluations",
+    response_model=list[EvaluationRecord]
+)
+def get_evaluations(
+    verdict: str | None = Query(None),
+    experiment_id: int | None = Query(None),
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return service.get_evaluations(
+        db=db,
+        user_id=current_user.id,
+        verdict=verdict,
+        experiment_id=experiment_id,
+        page=page,
+        limit=limit
     )
 
 #===============================================================================

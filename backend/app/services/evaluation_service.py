@@ -166,3 +166,21 @@ class EvaluationService:
             db,
             user_id
         )
+
+    def get_evaluations(
+        self,
+        db: Session,
+        user_id: str,
+        verdict: str | None = None,
+        experiment_id: int | None = None,
+        page: int = 1,
+        limit: int = 10
+    ):
+        return self.repository.get_all(
+            db=db,
+            user_id=user_id,
+            verdict=verdict,
+            experiment_id=experiment_id,
+            page=page,
+            limit=limit
+        )
