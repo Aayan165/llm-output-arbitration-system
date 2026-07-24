@@ -159,3 +159,15 @@ class EvaluationRepository:
             .order_by(Evaluation.created_at.desc())
             .all()
         )
+
+    def export(
+        self,
+        db: Session,
+        user_id: str
+    ):
+        return (
+            db.query(Evaluation)
+            .filter(Evaluation.user_id == user_id)
+            .order_by(Evaluation.created_at.desc())
+            .all()
+        )

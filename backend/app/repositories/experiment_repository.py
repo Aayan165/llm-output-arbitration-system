@@ -65,3 +65,19 @@ class ExperimentRepository:
             .first()
             is not None
         )
+
+    def export_experiment(
+        self,
+        db: Session,
+        experiment_id: int,
+        user_id: str
+    ):
+        return (
+            db.query(Experiment)
+            .filter(
+                Experiment.id == experiment_id,
+                Experiment.user_id == user_id
+            )
+            .order_by(Experiment.created_at.desc())
+            .all()
+        )

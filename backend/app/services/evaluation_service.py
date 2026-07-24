@@ -1,4 +1,7 @@
+#Libraries
 from sqlalchemy.orm import Session
+import csv
+import io
 
 #Workflow (langgraph)
 from app.graph.workflow import build_graph
@@ -184,3 +187,48 @@ class EvaluationService:
             page=page,
             limit=limit
         )
+
+    def export_csv(
+        self,
+        db: Session,
+        user_id: str
+    ):
+        evaluations = self.repository.export(
+            db,
+            user_id
+        )
+
+        output = io.StringIO()
+
+        writer = csv.writer(output)
+
+        writer.writerow([
+            "Model",
+            "Prompt",
+            "Response",
+            "Accuracy",
+            "Logic",
+            "Completeness",
+            "Overall",
+            "Verdict",
+            "Summary",
+            "Experiment",
+            "Created At"
+        ])
+
+        for evaluation in evaluations:
+            writer.writerow([
+            evaluation.model_name,
+            evaluation.prompt,
+            evaluation.response,
+            evaluation.accuracy_score,
+            evaluation.logic_score,
+            evaluation.completeness_score,
+            evaluation.overall_score,
+            evaluation.verdict,
+            evaluation.summary,
+            evaluation.experiment_id,
+            evaluation.created_at
+        ])
+
+        return output.getvalue()

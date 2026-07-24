@@ -1,7 +1,9 @@
+#Libraries
 from fastapi import APIRouter
 from fastapi import HTTPException
 from fastapi import Depends
 from fastapi import Query
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 #Schemas
@@ -283,6 +285,50 @@ def get_evaluations(
         experiment_id=experiment_id,
         page=page,
         limit=limit
+    )
+
+@router.get(
+    "/export/evaluations"
+)
+def export_evaluations(
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    csv_data = service.export_csv(
+        db,
+        current_user.id
+    )
+
+    return Response(
+        content=csv_data,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition":
+            "attachment; filename=evalutions.csv"
+        }
+    )
+
+@router.get(
+    "/experiments/{experiment_id}/export"
+)
+def export_experiment(
+    experiment_id: int,
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    csv_data = experiment_service.export_csv(
+        db=db,
+        experiment_id=experiment_id,
+        user_id=current_user.id
+    )
+
+    return Response(
+        content=csv_data,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition":
+            f'attachment; filename="experiment_{experiment_id}.csv"'
+        }
     )
 
 #===============================================================================
